@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
   `cin` int(11) NOT NULL AUTO_INCREMENT,
   `mailA` varchar(20) NOT NULL,
   `pwdA` varchar(20) NOT NULL,
+  `pwdA1` varchar(20) NOT NULL,
   PRIMARY KEY (`cin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
