@@ -1,23 +1,27 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package iService;
+package Service;
+
+import entities.evenement;
+import java.util.List;
 
 /**
  *
  * @author Dell
  */
-import entites.evenement;
-import java.util.List;
 public interface ievenementService {
-    
-    public void creerevenement(evenement e);
-    public void modifierevenement(evenement e);
-    public void supprimerevenement(evenement e);
-    public List<evenement> afficherevenement();
    
-}
+  
+    public void ajouterTypeEvennement(TypeEvennement typEvent);
+    public void modifTypeEvennement(TypeEvennement typEvent);
+    public void supprTypeEvennement(TypeEvennement typEvent);
+    public TypeEvennement rechercheTypeEvennementByID(int idd);
+    public TypeEvennement rechercheTypeEvennementByCrit(String crit);
+    public List<TypeEvennement> listerTypeEvennment();
 
+}
 
