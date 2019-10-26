@@ -1,3 +1,4 @@
+/*
 package service;
 
 
@@ -154,6 +155,249 @@ public class evenementService implements ievenementService{
 
    
 }
+*/
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Service;
+
+
+import Entity.Evennement;
+import Entity.TypeEvennement;
+import Entity.User;
+import Service.ievenementService;
+import Service.TypeEvenementService;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author Dell
+ */
+public class EvennementService implements ievenementService{
+    TypeEvennementService typeEvennementService = new TypeEvennementService();
+    SingletonConnexion connect =SingletonConnexion.getInstance();
+    Connection conn=connect.getConn();
+    
+        java.util.Date dt = new java.util.Date();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        User u;
+    public EvenementService() {
+        try {
+            String q = UserSession.getInstance(null,null, null, null, null, null, null).getUserName();
+            
+            UserService uservice= new UserService();
+            u=uservice.get(q);
+        } catch (SQLException ex) {
+            System.out.println("");
+        }
+        
+    }
+            
+    
+    @Override
+    public void ajouterEvennement(Evennement event) {
+        try {
+          
+            
+            
+            Statement ps=conn.createStatement();            
+        if(event.getSalle()!=null)
+            ps.executeUpdate("insert into evennement values ("+null+",'"+event.getDescription()+"','"+
+                sdf.format(event.getDtDebut())+"','"+sdf.format(event.getDtFin())+"',"+
+                event.getNbPlace()+",'"+event.isEntree()+"',"+event.getPrix()+",'"+sdf.format(new Date())+"',"+
+                event.getType().getId()+","+event.getSalle().getId()+",'"+event.getImage()+"')");
+        else
+            ps.executeUpdate("insert into evennement values ("+null+",'"+event.getDescription()+"','"+
+                    sdf.format(event.getDtDebut())+"','"+sdf.format(event.getDtFin())+"',"+
+                    event.getNbPlace()+",'"+event.isEntree()+"',"+event.getPrix()+",'"+sdf.format(new Date())+"',"+
+                    event.getType().getId()+","+null+",'"+event.getImage()+"')");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,"Erreur d_'ajout \n"+ex.getMessage());
+            System.out.println(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public void modifEvennement(Evennement event) {
+        try
+        {
+            Statement ps=conn.createStatement();
+            ps.executeUpdate("UPDATE evennement SET description = '"+event.getDescription()+"', nbPlace = "+event.getNbPlace()+
+                    " , dtDebut = '"+event.getDtDebut()+"', dtFin = '"+event.getDtFin()+"', entree= '"+event.isEntree()+         
+                    "', prix= '"+event.getPrix()+"' WHERE id = "+event.getId());
+        }catch(Exception e)
+        {
+           System.out.println("mise a jour erreuné"+e.getMessage());
+        } 
+    }
+
+    @Override
+    public void supprEvennement(Evennement event) {
+        try {
+            Statement ps=conn.createStatement();
+            ps.executeUpdate("delete from evennement where id = '"+event.getId()+"'");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,"Erreur de suppression\n"+ex.getMessage());
+        }
+    }
+
+    @Override
+    public ArrayList<Evennement> listerEvennment() {
+        ArrayList<Evennement> lstEvennement = new ArrayList<Evennement>();
+        TypeEvennement typeEvenet ;
+        Salle salle;
+        try{
+            Statement ps=conn.createStatement();
+            ResultSet res; 
+            res=ps.executeQuery("select * from 	evennement order by(dtDebut) desc");
+            while(res.next()){
+                int id = res.getInt("id");
+                String desc=res.getString("description");
+                Date dtDebut=res.getDate("dtDebut");
+                Date dtFin=res.getDate("dtFin");
+                int nbPlace=res.getInt("nbPlace");
+                String entree=res.getString("entree");
+                float prix=res.getFloat("prix");
+                Date dateCreation=res.getDate("dateCreation");
+                String image=res.getString("image"); 
+                int idtype=res.getInt("id_type");
+                typeEvenet=typeEvennementService.rechercheTypeEvennementByID(idtype);
+                int idsalle = res.getInt("id_salle");
+                salle = new Salle();
+                Evennement e = new Evennement(id, desc, dtDebut, dtFin, nbPlace, entree, prix, dateCreation, typeEvenet, salle, image);
+                lstEvennement.add(e);                  
+            }      
+        }catch(Exception e)
+        {
+           System.out.println(""+e.getMessage());
+        }   
+          return lstEvennement;
+    }
+
+    @Override
+    public Evennement rechercheEvennementByID(int idd) {
+           
+            TypeEvennement typeEvenet ;
+            Salle salle;
+        
+        try { 
+            Statement ps=conn.createStatement();
+            ResultSet res;
+            
+            res=ps.executeQuery("select * from 	evennement where id="+idd);
+            while(res.next())
+            {
+                int id = res.getInt("id");
+                String desc=res.getString("description");
+                Date dtDebut=res.getDate("dtDebut");
+                Date dtFin=res.getDate("dtFin");
+                int nbPlace=res.getInt("nbPlace");
+                String entree=res.getString("entree");
+                float prix=res.getFloat("prix");
+                Date dateCreation=res.getDate("dateCreation");
+                String image=res.getString("image"); 
+                int idtype=res.getInt("id_type");
+                typeEvenet=typeEvennementService.rechercheTypeEvennementByID(idtype);
+               
+                int idsalle = res.getInt("id_salle");
+                salle = new Salle();
+                
+                Evennement e = new Evennement(id, desc, dtDebut, dtFin, nbPlace, entree, prix, dateCreation, typeEvenet, salle, image);  
+                return e ;
+            }
+        } catch (SQLException ex) {
+            System.out.println(""+ex.getMessage());
+        }
+        return null;
+    }
+    
+    @Override
+    public Evennement rechercheEvennementByCrit(String crit) {
+           
+            TypeEvennement typeEvenet ;
+            Salle salle;
+        
+        try { 
+            Statement ps=conn.createStatement();
+            ResultSet res;
+            
+            res=ps.executeQuery("select * from 	evennement where description like '%"+crit+"%' ");
+            while(res.next())
+            {
+                int id = res.getInt("id");
+                String desc=res.getString("description");
+                Date dtDebut=res.getDate("dtDebut");
+                Date dtFin=res.getDate("dtFin");
+                int nbPlace=res.getInt("nbPlace");
+                String entree=res.getString("entree");
+                float prix=res.getFloat("prix");
+                Date dateCreation=res.getDate("dateCreation");
+                String image=res.getString("image"); 
+                int idtype=res.getInt("id_type");
+                typeEvenet=typeEvennementService.rechercheTypeEvennementByID(idtype);
+               
+                int idsalle = res.getInt("id_salle");
+                salle = new Salle();
+                
+                return  new Evennement(id, desc, dtDebut, dtFin, nbPlace, entree, prix, dateCreation, typeEvenet, salle, image);  
+                
+            }
+        } catch (SQLException ex) {
+            System.out.println(""+ex.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public List<Evennement> listerEvennmentProgramee() {
+
+           ArrayList<Evennement> lstEvennement = new ArrayList<Evennement>();
+        TypeEvennement typeEvenet ;
+        Salle salle;
+        try{
+            Statement ps=conn.createStatement();
+            ResultSet res; 
+            res=ps.executeQuery("select * from 	evennement where dtFin > '"+sdf.format(new Date())+"'  order by(dtDebut) desc");
+            while(res.next()){
+                int id = res.getInt("id");
+                String desc=res.getString("description");
+                Date dtDebut=res.getDate("dtDebut");
+                Date dtFin=res.getDate("dtFin");
+                int nbPlace=res.getInt("nbPlace");
+                String entree=res.getString("entree");
+                float prix=res.getFloat("prix");
+                Date dateCreation=res.getDate("dateCreation");
+                String image=res.getString("image"); 
+                int idtype=res.getInt("id_type");
+                typeEvenet=typeEvennementService.rechercheTypeEvennementByID(idtype);
+                int idsalle = res.getInt("id_salle");
+                salle = new Salle();
+                Evennement e = new Evennement(id, desc, dtDebut, dtFin, nbPlace, entree, prix, dateCreation, typeEvenet, salle, image);
+                lstEvennement.add(e);                  
+            }      
+        }catch(Exception e)
+        {
+           System.out.println(""+e.getMessage());
+        }   
+          return lstEvennement;
+    }
+    
+    
+    
+}
+
 
    
     
